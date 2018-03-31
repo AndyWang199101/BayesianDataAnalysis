@@ -75,16 +75,20 @@ beta_stat <- function( alpha,beta,plot=T,fig='' ){
     lower.bound.2 <- sorted_samples[1000*(1-0.05/2)]
     
     
-    ### by normal approximation
-    upper.bound.3 <- qnorm( 0.05/2,mean = m,sd = sd )
-    lower.bound.3 <- qnorm( 1-0.05/2,mean = m,sd = sd )
+    ### by normal approximation; notation!!!! noraml approximatin should use the samples to estimate mean and var
+    samples_m = mean(posterior_samples)
+    samples.s <- sqrt( var(posterior_samples)*(1000/999) )
+    upper.bound.3 <- qnorm( 0.05/2,mean = samples_m,sd = samples.s )
+    lower.bound.3 <- qnorm( 1-0.05/2,mean = samples_m,sd = samples.s )
+    
+
     
     ### by transform and normal approximation
     posterior_samples_transform <- log( posterior_samples/(1 - posterior_samples) )
     if( plot ){
         data.plot1 <- data.frame( x=posterior_samples_transform )
         p <- ggplot( data=data.plot1,aes(x=x) )
-        q2 <- p + geom_histogram(bins = 100) +theme_bw()+labs( x=TeX("Posterior samples of $\\frac{1-\\theta}{\\theta}$") )+
+        q2 <- p + geom_histogram(bins = 100) +theme_bw()+labs( x=TeX("Posterior samples of $\\log\\frac{1-\\theta}{\\theta}$") )+
             theme(plot.title=element_text(size=20),
                   axis.title.y=element_text(size = 25, vjust=+0.2),
                   axis.title.x=element_text(size = 25, vjust=-0.2),
@@ -103,7 +107,7 @@ beta_stat <- function( alpha,beta,plot=T,fig='' ){
     
     
     if(plot){
-        multiplot( list(q1,q2) )
+        multiplot( list(q1,q2),cols = 1 )
         dev.off()
     }
     
